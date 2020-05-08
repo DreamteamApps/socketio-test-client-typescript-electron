@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styles from './Client.css';
 
 import axios from 'axios';
@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 type Props = {
   url: string;
+  id: number;
 };
 
 enum EventTypes {
@@ -71,7 +72,7 @@ class Event {
   }
 };
 
-let SocketClient: SocketIOClient.Socket;
+
 
 export default function Client(props: Props) {
   const classes = useStyles();
@@ -80,28 +81,33 @@ export default function Client(props: Props) {
 
   const [emiters, setEmiters] = useState(new Array<Emiter>());
   const [listeners, setListeners] = useState(new Array<Listener>());
-
   const [events, setEvents] = useState(new Array<Event>());
 
+  const socketClient = useRef();
+
   useEffect(() => {
-    SocketClient = socketIO(url);
+    const client = socketIO(url);
 
-    addEmiter('client-connect');
-    addEmiter('join-room', { userId: 1 });
-    addEmiter('writing-message');
-    addEmiter('send-message', {
-      "message": "e ai",
-      "type": "text"
-    });
+    socketClient.current = client;
 
-    addListener('total-online');
-    addListener('user-joined');
-    addListener('user-leaved');
-    addListener('user-writing-message');
-    addListener('user-send-message');
+    setTimeout(() => {
+      addEmiter('client-connect');
+      addEmiter('join-room', { userId: props.id });
+      addEmiter('writing-message');
+      addEmiter('send-message', {
+        "message": "e ai",
+        "type": "text"
+      });
+
+      addListener('total-online');
+      addListener('user-joined');
+      addListener('user-leaved');
+      addListener('user-writing-message');
+      addListener('user-send-message');
+    }, 1000)
 
     return () => {
-      SocketClient.disconnect();
+      socketClient.current.disconnect();
     }
   }, []);
 
@@ -122,7 +128,7 @@ export default function Client(props: Props) {
 
     const listener = new Listener(event, color, customFormater);
 
-    SocketClient.on(event, (data: any) => handleListenerIncoming(listener, data));
+    socketClient.current.on(event, (data: any) => handleListenerIncoming(listener, data));
 
     setListeners(listeners => [...listeners, listener])
   }
@@ -130,13 +136,13 @@ export default function Client(props: Props) {
   const handleListenerIncoming = (listener: Listener, data: any) => {
     const { color, customFormater } = listener;
 
-    const message = customFormater ? customFormater(data) : JSON.stringify(data, null, 2);
+    const message = customFormater ? customFormater(data) : `Received ${listener.event} ${JSON.stringify(data, null, 2)}`;
 
     addEvent(EventTypes.listen, listener.event, data, message, color);
   }
 
   const runEmiter = (emiter: Emiter) => {
-    SocketClient.emit(emiter.event, emiter.payload);
+    socketClient.current.emit(emiter.event, emiter.payload);
 
     addEvent(EventTypes.emit, emiter.event, emiter.payload, `Emited ${emiter.event}`, emiter.color);
   }
@@ -152,16 +158,16 @@ export default function Client(props: Props) {
       <h4>{url}</h4>
       <Grid container spacing={1}>
         <Grid item xs={6}>
-          <Paper className={classes.paper} style={{ minWidth: 450 }}>
+          <Paper className={classes.paper} style={{ minWidth: 400 }}>
             <Table style={{ height: 300 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell align={'left'} style={{ minWidth: 120 }}>
+                  <TableCell align={'left'}>
                     <span style={{ fontSize: 20 }}>Emiters</span>
                   </TableCell>
-                  <TableCell align={'left'} style={{ minWidth: 120 }}>
+                  <TableCell align={'left'}>
                   </TableCell>
-                  <TableCell align={'right'} style={{ minWidth: 120 }}>
+                  <TableCell align={'right'}>
                     <IconButton style={{ padding: 5 }} color="primary">
                       <AddCircleOutline />
                     </IconButton>
@@ -196,16 +202,16 @@ export default function Client(props: Props) {
           </Paper>
         </Grid>
         <Grid item xs={6}>
-          <Paper className={classes.paper} style={{ minWidth: 450 }}>
+          <Paper className={classes.paper} style={{ minWidth: 400 }}>
             <Table style={{ height: 300 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell align={'left'} style={{ minWidth: 120 }}>
+                  <TableCell align={'left'}>
                     <span style={{ fontSize: 20 }}>Listeners</span>
                   </TableCell>
-                  <TableCell align={'left'} style={{ minWidth: 120 }}>
+                  <TableCell align={'left'}>
                   </TableCell>
-                  <TableCell align={'right'} style={{ minWidth: 120 }}>
+                  <TableCell align={'right'}>
                     <IconButton style={{ padding: 5 }} color="primary">
                       <AddCircleOutline />
                     </IconButton>
@@ -233,7 +239,7 @@ export default function Client(props: Props) {
             <Table style={{ height: 300 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell align={'left'} style={{ minWidth: 120 }}>
+                  <TableCell align={'left'}>
                     <span style={{ fontSize: 20 }}>Events</span>
                   </TableCell>
                 </TableRow>
