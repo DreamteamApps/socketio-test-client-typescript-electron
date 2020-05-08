@@ -184,6 +184,7 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@babel/register": "^7.9.0",
+    "@types/axios": "^0.14.0",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/history": "^4.7.5",
@@ -197,6 +198,7 @@
     "@types/react-test-renderer": "^16.9.2",
     "@types/redux-logger": "^3.0.7",
     "@types/sinon": "^7.5.2",
+    "@types/socket.io-client": "^1.4.32",
     "@types/tapable": "^1.0.5",
     "@types/vfile-message": "^2.0.0",
     "@types/webpack": "^4.41.3",
@@ -274,6 +276,9 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
     "@hot-loader/react-dom": "^16.13.0",
+    "@material-ui/core": "^4.9.13",
+    "@material-ui/icons": "^4.9.1",
+    "axios": "^0.19.2",
     "connected-react-router": "^6.8.0",
     "core-js": "^3.6.5",
     "devtron": "^1.4.0",
@@ -289,6 +294,7 @@
     "react-router-dom": "^5.1.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "socket.io-client": "^2.3.0",
     "source-map-support": "^0.5.16"
   },
   "devEngines": {
@@ -305,7 +311,12 @@
   "prettier": {
     "overrides": [
       {
-        "files": [".prettierrc", ".babelrc", ".eslintrc", ".stylelintrc"],
+        "files": [
+          ".prettierrc",
+          ".babelrc",
+          ".eslintrc",
+          ".stylelintrc"
+        ],
         "options": {
           "parser": "json"
         }
@@ -314,10 +325,15 @@
     "singleQuote": true
   },
   "stylelint": {
-    "extends": ["stylelint-config-standard", "stylelint-config-prettier"]
+    "extends": [
+      "stylelint-config-standard",
+      "stylelint-config-prettier"
+    ]
   },
   "renovate": {
-    "extends": ["bliss"]
+    "extends": [
+      "bliss"
+    ]
   },
   "husky": {
     "hooks": {

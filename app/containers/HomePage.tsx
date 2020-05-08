@@ -1,6 +1,10 @@
 import React from 'react';
-import Home from '../components/Home';
+import Client from '../components/client/Client';
 
 export default function HomePage() {
-  return <Home />;
+  return (
+    <div>
+      <Client url={"https://dta-simplechat-backend.herokuapp.com"} />
+    </div>
+  );
 }
